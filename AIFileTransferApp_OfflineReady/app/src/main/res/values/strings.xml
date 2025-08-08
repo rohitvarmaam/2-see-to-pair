@@ -1,0 +1,7 @@
+<resources>
+  <string name="app_name">AIFileTransferApp</string>
+  <string name="send_file">Send (Capture)</string>
+  <string name="receive_file">Receive (Train)</string>
+  <string name="capture">Capture &amp; Detect</string>
+  <string name="train_now">Train Now</string>
+</resources>
