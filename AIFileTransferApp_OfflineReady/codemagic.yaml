@@ -1,34 +1,28 @@
-workflows:
+scripts:
+  - name: Build Debug APK (project lives in subfolder)
+    script: |
+      export PAworkflows:
   android-workflow:
-    name: Build Android APK (project in subfolder)
-    max_build_duration: 45
+    name: Android Build
+    max_build_duration: 60
     environment:
       vars:
-        JAVA_VERSION: "17"
-    cache:
-      cache_paths:
-        - ~/.gradle/caches
-        - ~/.gradle/wrapper
+        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+      java: 17
+      flutter: stable
     scripts:
-      - name: Prepare Gradle wrapper (repo has no wrapper)
+      - name: Change to project folder
         script: |
           cd AIFileTransferApp_OfflineReady
-          curl -sLo /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.7-bin.zip
-          unzip -q /tmp/gradle.zip -d /tmp
-          export PATH="/tmp/gradle-8.7/bin:$PATH"
-          gradle --version
-          gradle wrapper --gradle-version 8.7
-
-      - name: Build Debug APK
+      - name: Clean project
         script: |
-          cd AIFileTransferApp_OfflineReady
-          ./gradlew --no-daemon assembleDebug
-
+          ./gradlew clean
+      - name: Build Debug APK (project is in subfolder with full logs)
+        script: |
+          ./gradlew assembleDebug --stacktrace --info --debug
     artifacts:
       - AIFileTransferApp_OfflineReady/app/build/outputs/**/*.apk
-
-    # Uncomment this block to email the APK when build finishes
-    # publishing:
-    #   email:
-    #     recipients:
-    #       - your-email@example.com
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
