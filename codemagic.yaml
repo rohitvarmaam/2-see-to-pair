@@ -5,11 +5,7 @@ workflows:
 
     environment:
       vars:
-        JAVA_VERSION: "17"     # Codemagic will set Java 17
-      android:
-        components:
-          - tools
-          - platform-tools
+        JAVA_VERSION: "17"
 
     cache:
       cache_paths:
@@ -26,19 +22,18 @@ workflows:
 
       - name: Install required Android SDK components
         script: |
-          # ✅ Set these to match your app/build.gradle(.kts)
-          SDK_PLATFORM="platforms;android-34"   # e.g. compileSdk = 34  -> android-34
-          BUILD_TOOLS="build-tools;34.0.0"      # e.g. buildToolsVersion "34.0.0"
-          PLATFORM_TOOLS="platform-tools"
+          # 👉 Set these to match your app/build.gradle(.kts)
+          SDK_PLATFORM="platforms;android-34"   # compileSdk = 34 → android-34
+          BUILD_TOOLS="build-tools;34.0.0"      # buildToolsVersion "34.0.0" (omit if not used)
 
           yes | sdkmanager --licenses
-          sdkmanager "${PLATFORM_TOOLS}" "${SDK_PLATFORM}" "${BUILD_TOOLS}"
+          sdkmanager "platform-tools" "${SDK_PLATFORM}" "${BUILD_TOOLS}" || true
+          sdkmanager --list | head -n 50
           echo "Installed SDK components: ${SDK_PLATFORM}, ${BUILD_TOOLS}"
 
       - name: Build Debug APK (project lives in subfolder)
         script: |
           export PATH="/tmp/gradle-8.7/bin:$PATH"
-          # -p points Gradle to the sub-project folder
           gradle -p AIFileTransferApp_OfflineReady --no-daemon assembleDebug
 
     artifacts:
