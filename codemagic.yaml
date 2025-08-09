@@ -1,14 +1,21 @@
 workflows:
   android-workflow:
-    name: Build Android APK (no wrapper)
+    name: Build Android APK (no wrapper, subfolder project)
     max_build_duration: 45
+
     environment:
       vars:
-        JAVA_VERSION: "17"
+        JAVA_VERSION: "17"     # Codemagic will set Java 17
+      android:
+        components:
+          - tools
+          - platform-tools
+
     cache:
       cache_paths:
         - ~/.gradle/caches
         - ~/.gradle/wrapper
+
     scripts:
       - name: Download Gradle 8.7 and add to PATH
         script: |
@@ -17,9 +24,21 @@ workflows:
           export PATH="/tmp/gradle-8.7/bin:$PATH"
           gradle --version
 
-      - name: Build Debug APK (project is in subfolder)
+      - name: Install required Android SDK components
+        script: |
+          # ✅ Set these to match your app/build.gradle(.kts)
+          SDK_PLATFORM="platforms;android-34"   # e.g. compileSdk = 34  -> android-34
+          BUILD_TOOLS="build-tools;34.0.0"      # e.g. buildToolsVersion "34.0.0"
+          PLATFORM_TOOLS="platform-tools"
+
+          yes | sdkmanager --licenses
+          sdkmanager "${PLATFORM_TOOLS}" "${SDK_PLATFORM}" "${BUILD_TOOLS}"
+          echo "Installed SDK components: ${SDK_PLATFORM}, ${BUILD_TOOLS}"
+
+      - name: Build Debug APK (project lives in subfolder)
         script: |
           export PATH="/tmp/gradle-8.7/bin:$PATH"
+          # -p points Gradle to the sub-project folder
           gradle -p AIFileTransferApp_OfflineReady --no-daemon assembleDebug
 
     artifacts:
